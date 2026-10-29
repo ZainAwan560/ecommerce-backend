@@ -16,7 +16,11 @@ router.get('/', async (req, res) => {
 // 2. POST - Naya product add karne ke liye (Admin Dashboard ke liye)
 router.post('/', async (req, res) => {
   try {
-    const newProduct = new Product(req.body);
+    const productData = { ...req.body };
+    delete productData._id;
+    delete productData.id;
+    if (!productData.image) productData.image = 'cloth1';
+    const newProduct = new Product(productData);
     const savedProduct = await newProduct.save();
     res.status(201).json(savedProduct);
   } catch (error) {
@@ -31,9 +35,14 @@ router.put('/:id', async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       query = { image: `cloth${req.params.id}` };
     }
+    const updateData = { ...req.body };
+    delete updateData._id;
+    delete updateData.id;
+    delete updateData.__v;
+
     const updatedProduct = await Product.findOneAndUpdate(
       query, 
-      req.body, 
+      updateData, 
       { new: true }
     );
     res.json(updatedProduct);
