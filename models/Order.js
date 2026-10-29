@@ -7,7 +7,7 @@ const orderSchema = new mongoose.Schema({
   address: { type: String, default: "Karachi, Pakistan" },
   items: [
     {
-      productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+      productId: { type: mongoose.Schema.Types.Mixed },
       name: String,
       price: Number,
       quantity: Number,

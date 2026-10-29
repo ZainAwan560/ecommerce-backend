@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose'); // Ye line add ki hai
+const mongoose = require('mongoose');
 const Product = require('../models/Product');
 
 // 1. GET - Saare products database se laane ke liye (Website aur Admin dono ke liye)
 router.get('/', async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find().sort({ createdAt: -1 });
     res.json(products);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -23,38 +23,58 @@ router.post('/', async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 });
-// 5. PUT - Product ko Update (Edit) karne ke liye
+
+// 3. PUT - Product ko Update (Edit) karne ke liye
 router.put('/:id', async (req, res) => {
   try {
-    const updatedProduct = await Product.findByIdAndUpdate(
-      req.params.id, 
+    let query = { _id: req.params.id };
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      query = { image: `cloth${req.params.id}` };
+    }
+    const updatedProduct = await Product.findOneAndUpdate(
+      query, 
       req.body, 
-      { new: true } // naya updated data wapas bhejne ke liye
+      { new: true }
     );
     res.json(updatedProduct);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
-// 3. DELETE - Product delete karne ke liye (Admin Dashboard ke liye)
+
+// 4. DELETE - Product delete karne ke liye (Admin Dashboard ke liye)
 router.delete('/:id', async (req, res) => {
   try {
-    await Product.findByIdAndDelete(req.params.id);
+    let query = { _id: req.params.id };
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+      query = { image: `cloth${req.params.id}` };
+    }
+    await Product.findOneAndDelete(query);
     res.json({ message: 'Product delete ho gaya!' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
 });
 
-// 4. GET - Ek Single Product fetch karne ke liye (Details page ke liye)
+// 5. GET - Ek Single Product fetch karne ke liye (Details page ke liye)
 router.get('/:id', async (req, res) => {
   try {
-    // Ye check karega ke ID MongoDB wali hai ya purani fake ID hai
-    if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-      return res.status(404).json({ message: 'Invalid ID format' });
+    let product = null;
+    if (mongoose.Types.ObjectId.isValid(req.params.id)) {
+      product = await Product.findById(req.params.id);
     }
-    
-    const product = await Product.findById(req.params.id);
+    if (!product) {
+      product = await Product.findOne({ image: `cloth${req.params.id}` });
+    }
+    if (!product) {
+      const numericId = parseInt(req.params.id, 10);
+      if (!isNaN(numericId) && numericId > 0) {
+        const all = await Product.find().limit(numericId);
+        if (all.length >= numericId) {
+          product = all[numericId - 1];
+        }
+      }
+    }
     if (!product) return res.status(404).json({ message: 'Product nahi mila' });
     
     res.json(product);

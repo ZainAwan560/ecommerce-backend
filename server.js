@@ -31,7 +31,7 @@ const connectDB = async () => {
     return;
   }
   try {
-    const mongoUri = process.env.MONGO_URI || 'mongodb+srv://zahafay987_db_user:1juej0lMlaPiefnB@cluster0.22lwlk2.mongodb.net/';
+    const mongoUri = process.env.MONGO_URI || 'mongodb+srv://zahafay987_db_user:1juej0lMlaPiefnB@cluster0.22lwlk2.mongodb.net/?retryWrites=true&w=majority';
     await mongoose.connect(mongoUri, {
       serverSelectionTimeoutMS: 5000
     });
