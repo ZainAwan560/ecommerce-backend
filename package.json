@@ -2,7 +2,7 @@
   "name": "e-commerce-_backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "api/index.js",
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
