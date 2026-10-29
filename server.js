@@ -23,7 +23,10 @@ const connectDB = async () => {
     return;
   }
   try {
-    await mongoose.connect(process.env.MONGO_URI);
+    const mongoUri = process.env.MONGO_URI || 'mongodb+srv://zahafay987_db_user:1juej0lMlaPiefnB@cluster0.22lwlk2.mongodb.net/';
+    await mongoose.connect(mongoUri, {
+      serverSelectionTimeoutMS: 5000
+    });
     isConnected = true;
     console.log('MongoDB se connection successful ho gaya! ✅');
   } catch (err) {
