@@ -5,7 +5,15 @@ const Order = require('../models/Order');
 // 1. POST - Naya order E-commerce website se database mein save karne ke liye
 router.post('/', async (req, res) => {
   try {
-    const newOrder = new Order(req.body);
+    const data = { ...req.body };
+    if (Array.isArray(data.items)) {
+      data.items = data.items.map(item => {
+        const cleaned = { ...item };
+        delete cleaned._id;
+        return cleaned;
+      });
+    }
+    const newOrder = new Order(data);
     const savedOrder = await newOrder.save();
     res.status(201).json(savedOrder);
   } catch (error) {
